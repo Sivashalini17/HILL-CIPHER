@@ -33,58 +33,62 @@ STEP-5: Combine all these groups to get the complete cipher text.
 ```
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-#define S 2
-int K[S][S] = {{3,3},{2,5}};
-int modInv(int a, int m) 
-{
-  a %= m;
-  for (int x = 1; x < m; x++) if ((a * x) % m == 1) return x;
-  return -1;
+#include <ctype.h>
+#define SIZE 3
+
+int charToInt(char c) {
+    return toupper(c) - 'A';
 }
-int det(int M[S][S]) { return (M[0][0]*M[1][1] - M[0][1]*M[1][0]) % 26; }
-void invMat(int M[S][S], int I[S][S])
-{
-  int d = det(M); if (d < 0) d += 26;
-  int di = modInv(d, 26); if (di == -1) exit(0);
-  I[0][0] =  M[1][1]*di % 26;
-  I[0][1] = -M[0][1]*di % 26;
-  I[1][0] = -M[1][0]*di % 26;
-  I[1][1] =  M[0][0]*di % 26;
-  for (int i = 0; i < S; i++) for (int j = 0; j < S; j++)
-    if (I[i][j] < 0) I[i][j] += 26;
+
+char intToChar(int n) {
+    return (char)(n + 'A');
 }
-void mult(int M[S][S], int in[], int out[]) 
-{
-  for (int i = 0; i < S; i++) 
-  {
-    out[i] = 0;
-    for (int j = 0; j < S; j++) out[i] += M[i][j]*in[j];
-    out[i] %= 26;
-  }
-}
-void hill(char *in, char *out, int enc) 
-{
-  int len = strlen(in), V[S], R[S], KM[S][S];
-  if (!enc) invMat(K, KM); else memcpy(KM, K, sizeof(K));
-  for (int i = 0; i < len; i += S) 
-  {
-    for (int j = 0; j < S; j++) V[j] = in[i + j] - 'A';
-    mult(KM, V, R);
-    for (int j = 0; j < S; j++) out[i + j] = R[j] + 'A';
-  }
-  out[len] = 0;
-}
+
 int main() {
-  char msg[] = "VARSHA", enc[100], dec[100];
-  hill(msg, enc, 1); printf("Encrypted: %s\n", enc);
-  hill(enc, dec, 0); printf("Decrypted: %s\n", dec);
+    int key[SIZE][SIZE];
+    char plaintext[100], ciphertext[100];
+    int i, j, k, len;
+
+    printf("Enter 3x3 key matrix (row-wise):\n");
+    for (i = 0; i < SIZE; i++) {
+        for (j = 0; j < SIZE; j++) {
+            scanf("%d", &key[i][j]);
+        }
+    }
+
+    printf("Enter plaintext (in CAPITAL letters, no spaces): ");
+    scanf("%s", plaintext);
+
+    len = strlen(plaintext);
+    while (len % SIZE != 0) {
+        plaintext[len++] = 'X';
+        plaintext[len] = '\0';
+    }
+
+    int pos = 0;
+    for (i = 0; i < len; i += SIZE) {
+        for (j = 0; j < SIZE; j++) {
+            int sum = 0;
+            for (k = 0; k < SIZE; k++) {
+                sum += key[j][k] * charToInt(plaintext[i + k]);
+            }
+            ciphertext[pos++] = intToChar(sum % 26);
+        }
+    }
+    ciphertext[pos] = '\0';
+
+    printf("\nPlaintext : %s", plaintext);
+    printf("\nCiphertext: %s\n", ciphertext);
+
+    return 0;
+}
+
 }
 ```
 
 ## OUTPUT
 
-<img width="1282" height="937" alt="image" src="https://github.com/user-attachments/assets/e3bcb8c3-dd37-4c97-8f0e-3a34f5ec21ae" />
+<img width="1506" height="833" alt="image" src="https://github.com/user-attachments/assets/2c7a5818-8db5-4520-80fb-a976096a698f" />
 
 ## RESULT
 
