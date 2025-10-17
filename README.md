@@ -15,9 +15,7 @@ decrypt the message, each block is multiplied by the inverse of the m trix used 
  
 encryption. The matrix used
  
-for encryption is the cipher key, and it sho
- 
-ld be chosen
+for encryption is the cipher key, and it should be chosen
  
 randomly from the set of invertible n × n matrices (modulo 26).
 
